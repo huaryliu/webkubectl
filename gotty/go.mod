@@ -1,6 +1,6 @@
 module github.com/KubeOperator/webkubectl/gotty
 
-go 1.18
+go 1.23.10
 
 require (
 	github.com/NYTimes/gziphandler v1.1.1

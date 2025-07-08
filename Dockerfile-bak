@@ -3,11 +3,9 @@ FROM golang:1.23-alpine3.21 AS gotty-build
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.cn,direct
 
 WORKDIR /tmp
 COPY gotty gotty
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories && apk update
 RUN apk add --update git make && \
   cd gotty && \
   make gotty && cp gotty / && ls -l /gotty && /gotty -v
@@ -18,7 +16,6 @@ FROM alpine:3.21
 USER root
 
 COPY --from=gotty-build /gotty /usr/bin/
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories && apk update
 RUN ARCH=$(uname -m) && case $ARCH in aarch64) ARCH="arm64";; x86_64) ARCH="amd64";; esac && echo "ARCH: " $ARCH && \
     apk update && apk upgrade && apk add --update --no-cache bash bash-completion curl git wget openssl iputils busybox-extras vim fzf && sed -i "s/nobody:\//nobody:\/nonexistent/g" /etc/passwd && \
     curl -sLf https://storage.googleapis.com/kubernetes-release/release/v1.30.3/bin/linux/${ARCH}/kubectl > /usr/bin/kubectl && chmod +x /usr/bin/kubectl && \
